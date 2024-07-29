@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<uexplugins>
+    <plugin
+        uexName="uexDemo" version="1.0.0" build="2024072301">
+        <info>0:示例插件改动</info>
+        <build>0:AppCan示例插件</build>
+    </plugin>
+</uexplugins>

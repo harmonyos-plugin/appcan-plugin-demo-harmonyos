@@ -17,7 +17,7 @@ export default class EUExDemo extends EUExBase {
     return false;
   }
 
-  public testFirstInterface(...params: string[]): void {
+  public testFirstInterface(...params: string[]): string {
     BDebug.info(this.LogTag, 'testFirstInterface: ' + JSON.stringify(params));
     const cbData: FirstInterfaceCBO = {
       data: 'finish',
@@ -28,6 +28,8 @@ export default class EUExDemo extends EUExBase {
     this.callbackJsFunction(cbFunc, cbData);
     // 命名方法的方式回调
     this.callbackJsObject(this.CALLBACK_NAME_ON_FINISH_FIRST_INTERFACE, cbData);
+    // 同步方式回调。如果不需要return回调，则上面的方法返回类型应设置为void，下面的return就不需要了。
+    return "testFirstInterface result";
   }
 
   public openMainPage(...params: string[]): void {

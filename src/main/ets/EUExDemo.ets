@@ -25,7 +25,7 @@ export default class EUExDemo extends EUExBase {
     } as FirstInterfaceCBO;
     const cbFunc: Object = params[3] as Object;
     // 匿名方法的方式回调
-    this.callbackJsFunction(cbFunc, cbData);
+    this.callbackJsFunction(cbFunc, cbData, "extra infomation example");
     // 命名方法的方式回调
     this.callbackJsObject(this.CALLBACK_NAME_ON_FINISH_FIRST_INTERFACE, cbData);
     // 同步方式回调。如果不需要return回调，则上面的方法返回类型应设置为void，下面的return就不需要了。

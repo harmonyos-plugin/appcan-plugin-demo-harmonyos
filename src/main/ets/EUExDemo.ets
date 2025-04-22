@@ -1,6 +1,9 @@
-import { EUExBase, EBrowserView, BDebug } from '@appcan/engine';
+import { fileIo as fs } from '@kit.CoreFileKit';
+
+import { EUExBase, EBrowserView, BDebug, BUtility } from '@appcan/engine';
 import { router } from '@kit.ArkUI';
 import { FirstInterfaceCBO } from './vo/CallbackDataVO';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 /**
  * 插件入口类，继承自EUExBase
@@ -56,5 +59,25 @@ export default class EUExDemo extends EUExBase {
         }
         BDebug.info(this.LogTag, 'openMainPage success');
       })
+  }
+
+  public testHandleFileProtocolPath(...params: string[]): void {
+    BDebug.info(this.LogTag, 'testHandleFileProtocolPath');
+    // 示例：读取res://中的图片，拷贝到wgt://中
+    const inputPath1: string = 'res://girl.jpg';
+    const inputPath2: string = 'wgt://photo/girl.jpg';
+
+    // 转换为真实路径
+    const realPath1: string = BUtility.makeRealPath(inputPath1, this.mBrwView);
+    const realPath2: string = BUtility.makeRealPath(inputPath2, this.mBrwView);
+    BDebug.info(this.LogTag, 'testHandleFileProtocolPath', 'realPath1', realPath1);
+    BDebug.info(this.LogTag, 'testHandleFileProtocolPath', 'realPath2', realPath2);
+
+    // 拷贝文件
+    fs.copyFile(realPath1, realPath2).then(() => {
+      BDebug.info(this.LogTag, 'testHandleFileProtocolPath', "copy file succeed");
+    }).catch((err: BusinessError) => {
+      BDebug.error(this.LogTag, "testHandleFileProtocolPath", "copy file failed with error message: " + "code: " + err.code + ", message: " + err.message);
+    });
   }
 }

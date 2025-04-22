@@ -17,8 +17,16 @@ export default class EUExDemo extends EUExBase {
     return false;
   }
 
-  public testFirstInterface(...params: string[]): string {
-    BDebug.info(this.LogTag, 'testFirstInterface: ' + JSON.stringify(params));
+  /**
+   * 示例接口，与native端交换数据
+   * @param params 数据类型根据接口定义的需要，一般为string数组，如果传入json，也可以定义为object类型的数组，这里引擎插件机制不做限制
+   * @note 如果前端传入的是一个json对象，那么实际上插件接口收到的参数会是一个object。
+   *       不过因为arkts这个地方不会强制检查类型，所以不报错。但是用的时候要注意区分。
+   *       或者也可以根据具体传参类型，如果限制死了就是json，直接定义为object数组来接收也可以。
+   * @returns
+   */
+  public testFirstInterface(...params: object[]): string {
+    BDebug.info(this.LogTag, 'testFirstInterface: ' + JSON.stringify(params), params[2]['bbb']);
     const cbData: FirstInterfaceCBO = {
       data: 'finish',
       status: 0

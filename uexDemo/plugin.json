@@ -1,0 +1,12 @@
+{
+  "plugins": [
+    {
+      "uexName": "uexDemo",
+      "methods": [
+        "testFirstInterface",
+        "openMainPage",
+        "testHandleFileProtocolPath"
+      ]
+    }
+  ]
+} 

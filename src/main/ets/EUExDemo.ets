@@ -1,9 +1,10 @@
 import { fileIo as fs } from '@kit.CoreFileKit';
 
-import { EUExBase, EBrowserView, BDebug, BUtility } from '@appcan/engine';
+import { EUExBase, EBrowserView, BDebug, BUtility, WWidgetData } from '@appcan/engine';
 import { router } from '@kit.ArkUI';
 import { FirstInterfaceCBO } from './vo/CallbackDataVO';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { common } from '@kit.AbilityKit';
 
 /**
  * 插件入口类，继承自EUExBase
@@ -63,6 +64,14 @@ export default class EUExDemo extends EUExBase {
 
   public testHandleFileProtocolPath(...params: string[]): void {
     BDebug.info(this.LogTag, 'testHandleFileProtocolPath');
+    // 示例：获取当前插件入口类实例所属页面对应的UIContext
+    const uiContext: UIContext = this.mBrwView.getUIContext();
+    // 示例：获取当前所属Ability的Context
+    const context: Context | undefined = uiContext.getHostContext();
+    // 示例：获取UIAbilityContext
+    const uiAbilityContext: common.UIAbilityContext | undefined = context as common.UIAbilityContext;
+    // 示例：获取当前AppCan Widget信息
+    const widgetData: WWidgetData | undefined = this.getWidgetData();
     // 示例：读取res://中的图片，拷贝到wgt://中
     const inputPath1: string = 'res://girl.jpg';
     const inputPath2: string = 'wgt://photo/girl.jpg';

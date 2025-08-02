@@ -1,0 +1,6 @@
+
+# 启用注释标记保留代码
+-use-keep-in-source
+
+-keep-global-name EUEx*
+-keep-global-name *EngineEventListener*

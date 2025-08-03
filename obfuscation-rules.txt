@@ -1,3 +1,4 @@
+# uexDemo插件混淆配置
 # 详细说明：https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/source-obfuscation-V5
 
 # ==================== 混淆选项 ====================
@@ -9,9 +10,23 @@
 -enable-export-obfuscation
 # 启用注释标记保留代码
 -use-keep-in-source
-# 压缩代码
--compact
 
--keep-global-name EUEx*
--keep-global-name *EngineEventListener*
+# ==================== 三层保护策略 ====================
+
+# 1. JavaScript可调用方法保护（对应appcan_extend_plugins.json中的methods）
+-keep-property-name openMainPage
+-keep-property-name testFirstInterface
+-keep-property-name testHandleFileProtocolPath
+
+# 2. 插件入口类导出保护
+-keep-global-name EUExDemo
+
+# 3. 保护文件内容
+-keep ./src/main/ets/EUExDemo.ets
+
+# 4. 保护文件名和文件夹名
+-keep-file-name src
+-keep-file-name main
+-keep-file-name ets
+-keep-file-name EUExDemo
 

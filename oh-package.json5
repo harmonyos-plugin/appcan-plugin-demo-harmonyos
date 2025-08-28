@@ -8,7 +8,7 @@
   "dependencies": {
 //    "@appcan/engine": "file:../../engine",
 //    "@appcan/engine": "libs/engine.har",
-    "@appcan/engine": "0.9.12"
+    "@appcan/engine": "^0.9.27"
   },
   "devDependencies": {},
   "dynamicDependencies": {}

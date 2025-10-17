@@ -1,29 +1,35 @@
 ## 创建并初始化插件开发工程
 
+首先下载AppCan鸿蒙版引擎插件容器工程（工程原始名为appcan-harmony-container，可以根据需要进行修改），作为开发调试的基础工程，然后进行下面的操作。
+
 假设需要创建的插件名称为uexDemo，以下为具体步骤：
 
-1. 新建一个module，命名为uexDemo（如果是在引擎调试工程内，则右键点击plugins目录，在其中新建module）。
-2. 插件配置文件：在插件工程目录（例如：plugins/uexDemo）下，再创建一个与插件名同名的目录（例如：plugins/uexDemo/uexDemo），作为插件包压缩为zip之前的目录，其中存放插件的版本信息info.xml以及插件的接口声明json文件plugin.json，其中plugin.json对应的是Android中的plugin.xml，只是在鸿蒙版本中采用了json格式。
+1. 新建一个module，命名为uexDemo（如果是在工程内，则右键点击plugins目录，在其中新建module）。
+2. 插件配置文件：在插件工程目录（例如：plugins/uexDemo）下，再创建一个与插件名同名的目录（例如：plugins/uexDemo/uexDemo），作为插件包压缩为zip之前的目录，其中存放插件的版本信息info.xml以及插件的接口声明TypeScript文件plugin.config.ts。新版本使用TypeScript格式的配置文件替代了旧版的plugin.json格式，提供更好的类型安全性和开发体验。
 3. 配置插件工程对engine模块的依赖，在插件工程的oh-package.json5文件的dependencies中增加```"@appcan/engine": "file:../../engine"```
 4. 在src/main/ets中新建一个ArkTS File，命名为EUExDemo，作为插件入口类，继承EUExBase
-5. 在module内的Index.ets中导出EUExDemo入口类
+5. 在module内的Index.ets中导出EUExDemo入口类和pluginConfig配置
 
 ## 插件配置文件实例
 
-### plugin.json示例
+### plugin.config.ts示例
 
-```
-{
+此文件取代了旧版的`plugin.json`。它以TypeScript模块的形式直接导出配置对象。
+
+```typescript
+// 文件路径: plugins/uexDemo/uexDemo/plugin.config.ts
+export const pluginConfig = {
   "plugins": [
     {
-      "className": "EUExBase",
       "uexName": "uexDemo",
       "methods": [
-        "open"
+        "testFirstInterface",
+        "openMainPage",
+        "testHandleFileProtocolPath"
       ]
     }
   ]
-} 
+};
 ```
 
 ### info.xml示例
@@ -50,30 +56,20 @@
   }
 ```
 
-2. 打开引擎基础工程内的entry/src/main/resources/base/profile/appcan\_extend\_plugins.json，在plugins节点内，增加uexDemo插件的名称并注册对外开放的JS方法名，示例如下：
+2. 打开引擎基础工程内的entry/src/main/ets/AppCanExPluginProvider.ets，导入EUExDemo，并在obtainInitializedPlugins方法内增加uexDemo插件的注册代码，示例如下：
 
 ```
-{
-  "plugins": [
-    {
-      "uexName": "uexDemo",
-      "methods": [
-        "openMainPage",
-        "testFirstInterface",
-        "testHandleFileProtocolPath"
-      ]
-    }
-  ]
-}
-```
-
-3. 打开引擎基础工程内的entry/src/main/ets/AppCanExPluginProvider.ets，导入EUExDemo，并在obtainInitializedPlugins方法内增加uexDemo插件的注册代码，示例如下：
-
-```
-import { EUExDemo } from '@appcan/uexDemo';
+import { EUExDemo, pluginConfig as uexDemoConfig } from '@appcan/uexDemo';
 ```
 
 ```
+  obtainPluginConfigs(context: Context): object[] {
+    let plugin_configs = new Array<object>();
+    // TODO 将插件配置逐一引用并加入到插件配置列表中
+    plugin_configs = plugin_configs.concat(uexDemoConfig.plugins);
+    return plugin_configs;
+  }
+
   obtainInitializedPlugins(context: Context, brwView: EBrowserView): Map<string, EUExBase> {
     const pluginsClassMap: Map<string, EUExBase> = new Map();
     // TODO 在此声明插件实例化对象
@@ -82,7 +78,9 @@ import { EUExDemo } from '@appcan/uexDemo';
   }
 ```
 
-4. 特殊场景下，如果需要声明EngineEventListener监听，则需要在obtainInitializedEventListeners方法内插入对应的初始化代码，示例如下：
+> **注意**：旧版开发指南中手动修改 `appcan_extend_plugins.json` 文件的步骤已被移除。新的配置机制会直接读取各插件模块中的`plugin.config.ts`文件导出形成的pluginConfig，不再需要手动在主工程中进行集中配置。
+
+3. 特殊场景下，如果需要声明EngineEventListener监听，则需要在obtainInitializedEventListeners方法内插入对应的初始化代码，示例如下：
 
 ```
   obtainInitializedEventListeners(context: Context, brwView: EBrowserView): EngineEventListener[] {
@@ -93,7 +91,49 @@ import { EUExDemo } from '@appcan/uexDemo';
   }
 ```
 
-5. 这样即可在entry/src/main/resources/resfile/widget内修改对应的测试用例来测试插件了。
+4. 这样即可在entry/src/main/resources/resfile/widget内修改对应的测试用例来测试插件了。
+
+## 新版插件配置机制变更说明总结
+
+为了简化插件开发流程，提升模块化程度，插件配置机制已进行升级。主要变更点如下：
+
+1.  **插件模块内配置文件格式升级**：
+    * **废弃**：原有的`plugin.json`配置文件。
+    * **新增**：使用`plugin.config.ts`文件替代。配置信息现在以TypeScript模块的形式导出，提高了类型安全性和开发体验。
+    * **导出**：Index.ets中增加对plugin.config.ts配置的导出，提供给引擎容器用于注册。
+
+2.  **移除中央配置文件**：
+    * **废弃**：主工程`entry`模块中的`appcan_extend_plugins.json`文件不再需要，开发者无需再手动编辑此文件来注册插件接口。
+
+3.  **简化注册流程**：
+    * 插件的接口配置（`uexName`和`methods`）现在完全由插件模块自身的`plugin.config.ts`文件定义。引擎容器会直接加载这些配置，实现了插件的“自注册”。
+    * 开发者现在只需在主工程中引入插件模块依赖，并在`AppCanExPluginProvider.ets`中实例化插件入口类并加载配置文件实例即可，无需再关心接口的重复声明。
+
+## 配置机制迁移对比
+
+### 旧版机制 vs 新版机制
+
+| 方面 | 旧版机制 | 新版机制 |
+|------|----------|----------|
+| 配置文件格式 | `plugin.json` (JSON格式) | `plugin.config.ts` (TypeScript格式) |
+| 类型安全 | 无编译时检查 | TypeScript编译时类型检查 |
+| 中央配置 | 需要手动维护`appcan_extend_plugins.json` | 自动从插件模块加载配置 |
+| 开发体验 | 手动同步配置，容易出错 | 自动化配置加载，减少错误 |
+| 维护成本 | 需要维护多个配置文件 | 配置与代码在同一模块 |
+
+### 迁移影响
+
+- **对现有插件功能无影响**：API接口保持不变，JS端调用方式不变
+- **向后兼容**：新机制不会破坏现有插件的功能
+- **渐进式迁移**：可以逐个插件进行迁移，不需要一次性全部更新
+
+### 迁移建议
+
+1. **新插件开发**：直接使用新的`plugin.config.ts`格式
+2. **现有插件维护**：建议逐步迁移到新格式以获得更好的开发体验
+3. **团队协作**：确保团队成员了解新的配置机制和开发流程
+
+详细的迁移步骤和注意事项请参考：[插件配置机制迁移指南](./插件配置机制迁移指南.md)
 
 ## EUExBase入口类详解
 

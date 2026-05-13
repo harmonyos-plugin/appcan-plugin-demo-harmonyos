@@ -6,7 +6,10 @@
 
 1. 新建一个module，命名为uexDemo（如果是在工程内，则右键点击plugins目录，在其中新建module）。
 2. 插件配置文件：在插件工程目录（例如：plugins/uexDemo）下，再创建一个与插件名同名的目录（例如：plugins/uexDemo/uexDemo），作为插件包压缩为zip之前的目录，其中存放插件的版本信息info.xml以及插件的接口声明TypeScript文件plugin.config.ts。新版本使用TypeScript格式的配置文件替代了旧版的plugin.json格式，提供更好的类型安全性和开发体验。
-3. 配置插件工程对engine模块的依赖，在插件工程的oh-package.json5文件的dependencies中增加```"@appcan/engine": "file:../../engine"```
+3. 配置插件工程的 `oh-package.json5`：
+   - AppCan 官方插件模块自身 `name` 默认使用 `@appcan/<小写packagename>`，例如 `@appcan/uexdemo`
+   - 第三方插件开发者可以按自身组织替换 group 前缀，例如 `@your-org/uexdemo`
+   - `dependencies` 中增加 ```"@appcan/engine": "file:../../engine"```
 4. 在src/main/ets中新建一个ArkTS File，命名为EUExDemo，作为插件入口类，继承EUExBase
 5. 在module内的Index.ets中导出EUExDemo入口类和pluginConfig配置
 
@@ -52,14 +55,16 @@ export const pluginConfig = {
 ```
   "dependencies": {
     "@appcan/engine": "file:../engine",
-    "@appcan/uexDemo": "file:../plugins/uexDemo"
+    "@appcan/uexdemo": "file:../plugins/uexDemo"
   }
 ```
+
+> **注意**：entry 的依赖名必须与插件模块自身 `oh-package.json5` 的 `name` 一致。AppCan 官方插件默认使用 `@appcan/<小写packagename>`；目录名和 JS 插件名可以继续使用 `uexDemo`。
 
 2. 打开引擎基础工程内的entry/src/main/ets/AppCanExPluginProvider.ets，导入EUExDemo，并在obtainInitializedPlugins方法内增加uexDemo插件的注册代码，示例如下：
 
 ```
-import { EUExDemo, pluginConfig as uexDemoConfig } from '@appcan/uexDemo';
+import { EUExDemo, pluginConfig as uexDemoConfig } from '@appcan/uexdemo';
 ```
 
 ```
@@ -506,4 +511,3 @@ export default class EUExDemo extends EUExBase {
 - **集中验证**: 统一处理参数验证逻辑
 - **易于维护**: 参数变更只需修改VO类
 - **代码复用**: VO类可在插件内部多处使用
-
